@@ -1,0 +1,271 @@
+From 9ba52e2620d0c674ed791b9e9bdf0dbf15900d92 Mon Sep 17 00:00:00 2001
+From: Bingxing Wang <i@imbushuo.net>
+Date: Sun, 25 Oct 2020 01:00:24 -0400
+Subject: [PATCH] BaseTools: support generation of Windows Boot Application
+
+Introduce the support for generating Windows Boot Application PE
+files with an override switch. In addition, Windows Boot Apps re
+quire PE checksum to be valid. GenFw doesn't populate the PE che
+cksum field, so this is also added.
+
+The checksum generation algorithm is taken from Windows NT 3.51
+public SDK's source.
+
+Signed-off-by: Bingxing Wang <i@imbushuo.net>
+---
+ BaseTools/Source/C/Common/BasePeCoff.c        |   6 +-
+ BaseTools/Source/C/GenFw/GenFw.c              | 114 ++++++++++++++++++
+ .../C/Include/IndustryStandard/PeImage.h      |   5 +
+ 3 files changed, 123 insertions(+), 2 deletions(-)
+
+diff --git a/BaseTools/Source/C/Common/BasePeCoff.c b/BaseTools/Source/C/Common/BasePeCoff.c
+index 62fbb2985c..6b536772f1 100644
+--- a/BaseTools/Source/C/Common/BasePeCoff.c
++++ b/BaseTools/Source/C/Common/BasePeCoff.c
+@@ -185,7 +185,8 @@ Returns:
+       ImageContext->Machine != EFI_IMAGE_MACHINE_EBC  && \
+       ImageContext->Machine != EFI_IMAGE_MACHINE_AARCH64 && \
+       ImageContext->Machine != EFI_IMAGE_MACHINE_RISCV64) {
+-    if (ImageContext->Machine == IMAGE_FILE_MACHINE_ARM) {
++    if (ImageContext->Machine == IMAGE_FILE_MACHINE_ARM ||
++        ImageContext->Machine == IMAGE_FILE_MACHINE_ARMNT) {
+       //
+       // There are two types of ARM images. Pure ARM and ARM/Thumb.
+       // If we see the ARM say it is the ARM/Thumb so there is only
+@@ -219,7 +220,8 @@ Returns:
+   if (ImageContext->ImageType != EFI_IMAGE_SUBSYSTEM_EFI_APPLICATION && \
+       ImageContext->ImageType != EFI_IMAGE_SUBSYSTEM_EFI_BOOT_SERVICE_DRIVER && \
+       ImageContext->ImageType != EFI_IMAGE_SUBSYSTEM_EFI_RUNTIME_DRIVER && \
+-      ImageContext->ImageType != EFI_IMAGE_SUBSYSTEM_SAL_RUNTIME_DRIVER) {
++      ImageContext->ImageType != EFI_IMAGE_SUBSYSTEM_SAL_RUNTIME_DRIVER &&
++      ImageContext->ImageType != EFI_IMAGE_SUBSYSTEM_WINDOWS_BOOT_APPLICATION) {
+     //
+     // unsupported PeImage subsystem type
+     //
+diff --git a/BaseTools/Source/C/GenFw/GenFw.c b/BaseTools/Source/C/GenFw/GenFw.c
+index 8cab70ba4d..28b4c48f8c 100644
+--- a/BaseTools/Source/C/GenFw/GenFw.c
++++ b/BaseTools/Source/C/GenFw/GenFw.c
+@@ -87,6 +87,7 @@ UINT32 mImageTimeStamp = 0;
+ UINT32 mImageSize = 0;
+ UINT32 mOutImageType = FW_DUMMY_IMAGE;
+ BOOLEAN mIsConvertXip = FALSE;
++BOOLEAN mIsConvertArmToArmThumb2 = FALSE;
+ 
+ 
+ STATIC
+@@ -251,6 +252,11 @@ Returns:
+   fprintf (stdout, "  -r, --replace         Overwrite the input file with the output content.\n\
+                         If more input files are specified,\n\
+                         the last input file will be as the output file.\n");
++  fprintf (stdout, "  --convert-output-machine-arm-to-thumb2\n\
++                        If the output machine type is IMAGE_FILE_MACHINE_ARM\n\
++                        or ARMT, convert to IMAGE_FILE_MACHINE_ARMNT (Thumb2)\n");
++  fprintf (stdout, "  --windows-boot-application\n\
++                        Force subsystem type to WINDOWS_BOOT_APPLICATION\n");
+   fprintf (stdout, "  -g HiiPackageListGuid, --hiiguid HiiPackageListGuid\n\
+                         Guid is used to specify hii package list guid.\n\
+                         Its format is xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx\n\
+@@ -1032,6 +1038,46 @@ Returns:
+   return Status;
+ }
+ 
++UINT16 ChkSum(
++  UINT32 PartialSum, 
++  UINT16* Source, 
++  UINT32 Length
++  )
++/*++
++
++Routine description:
++
++  ChkSum() - Compute a partial checksum on a portion of an imagefile.
++  Taken from Windows NT 3.51 SDK distribution.
++
++  FROM "imagehlp/imagedir.c": Steve Wood 18-Aug-1989
++
++Arguments:
++
++  PartialSum      Supplies the initial checksum value.
++  Sources         Supplies a pointer to the array of words for which the
++  checksum is computed. 
++  Length          Supplies the length of the array in words.
++
++Returns:
++  The computed checksum value is returned as the function value.
++
++--*/
++{
++  // Compute the word wise checksum allowing carries to occur into the
++  // high order half of the checksum longword.
++  while (Length--) {
++    PartialSum += *Source++;
++    PartialSum = (PartialSum >> 16) + (PartialSum & 0xffff);
++  }
++
++  //
++  // Fold final carry into a single word result and return the resultant
++  // value.
++  //
++  return (UINT16)(((PartialSum >> 16) + PartialSum) & 0xffff);
++}
++
+ int
+ main (
+   int  argc,
+@@ -1116,6 +1162,9 @@ Returns:
+   time_t                           OutputFileTime;
+   struct stat                      Stat_Buf;
+   BOOLEAN                          ZeroDebugFlag;
++  UINTN                            DesiredSubsystemOverride;
++  UINT16                           PartialSum;
++  UINT16                           *AdjustSum;
+ 
+   SetUtilityName (UTILITY_NAME);
+ 
+@@ -1165,6 +1214,10 @@ Returns:
+   OutputFileTime         = 0;
+   ZeroDebugFlag          = FALSE;
+ 
++  DesiredSubsystemOverride = -1;
++  PartialSum = 0;
++  AdjustSum = NULL;
++
+   if (argc == 1) {
+     Error (NULL, 0, 1001, "Missing options", "No input options.");
+     Usage ();
+@@ -1304,6 +1357,20 @@ Returns:
+       continue;
+     }
+ 
++    if (stricmp (argv[0], "--convert-output-machine-arm-to-thumb2") == 0) {
++      mIsConvertArmToArmThumb2 = TRUE;
++      argc --;
++      argv ++;
++      continue;
++    }
++
++    if (stricmp (argv[0], "--windows-boot-application") == 0) {
++      DesiredSubsystemOverride = EFI_IMAGE_SUBSYSTEM_WINDOWS_BOOT_APPLICATION;
++      argc --;
++      argv ++;
++      continue;
++    }
++
+     if ((stricmp (argv[0], "-m") == 0) || (stricmp (argv[0], "--mcifile") == 0)) {
+       mOutImageType = FW_MCI_IMAGE;
+       argc --;
+@@ -2045,6 +2112,11 @@ Returns:
+           Type = EFI_IMAGE_SUBSYSTEM_SAL_RUNTIME_DRIVER;
+           VerboseMsg ("Efi Image subsystem type is efi sal runtime driver.");
+ 
++      } else if (stricmp (ModuleType, "WINDOWS_BOOT_APPLICATION") == 0 ||
++        stricmp (ModuleType, "BOOT_APPLICATION") == 0) {
++          Type = EFI_IMAGE_SUBSYSTEM_WINDOWS_BOOT_APPLICATION;
++          VerboseMsg ("Efi Image subsystem type is windows boot application.");
++
+       } else {
+         Error (NULL, 0, 1003, "Invalid option value", "EFI_FILETYPE = %s", ModuleType);
+         goto Finish;
+@@ -2052,6 +2124,11 @@ Returns:
+     }
+   }
+ 
++  if (DesiredSubsystemOverride != -1) {
++    VerboseMsg ("Forcibly converting Efi Image subsystem type to windows boot application.");
++    Type = EFI_IMAGE_SUBSYSTEM_WINDOWS_BOOT_APPLICATION;
++  }
++
+   //
+   // Convert ELF image to PeImage
+   //
+@@ -2187,6 +2264,13 @@ Returns:
+     PeHdr->Pe32.FileHeader.Machine = IMAGE_FILE_MACHINE_ARMT;
+   }
+ 
++  if (mIsConvertArmToArmThumb2 &&
++      (PeHdr->Pe32.FileHeader.Machine == IMAGE_FILE_MACHINE_ARM ||
++       PeHdr->Pe32.FileHeader.Machine == IMAGE_FILE_MACHINE_ARMT)) {
++    VerboseMsg ("Converting output subsystem to IMAGE_FILE_MACHINE_ARMNT");
++    PeHdr->Pe32.FileHeader.Machine = IMAGE_FILE_MACHINE_ARMNT;
++  }
++
+   //
+   // Set new base address into image
+   //
+@@ -2657,6 +2741,36 @@ Returns:
+     }
+   }
+ 
++  //
++  // Normally PE/COFF checksum is not required, but in certain scenarios
++  // This is useful (for instance, Windows Boot Manager checks it)
++  //
++  // The following code is taken from Windows NT 3.51 SDK distribution.
++  //
++  if (mOutImageType == FW_EFI_IMAGE && PeHdr->Pe32.OptionalHeader.Magic == EFI_IMAGE_NT_OPTIONAL_HDR32_MAGIC) {
++    Optional32 = (EFI_IMAGE_OPTIONAL_HEADER32 *)&PeHdr->Pe32.OptionalHeader;
++    PartialSum = ChkSum(0, (UINT16*) FileBuffer, (FileLength + 1) >> 1);
++
++    AdjustSum = (UINT16*) &Optional32->CheckSum;
++    PartialSum -= (PartialSum < AdjustSum[0]);
++    PartialSum -= AdjustSum[0];
++    PartialSum -= (PartialSum < AdjustSum[1]);
++    PartialSum -= AdjustSum[1];
++
++    Optional32->CheckSum = (UINT32) PartialSum + FileLength;
++  } else if (mOutImageType == FW_EFI_IMAGE && PeHdr->Pe32.OptionalHeader.Magic == EFI_IMAGE_NT_OPTIONAL_HDR64_MAGIC) {
++    Optional64 = (EFI_IMAGE_OPTIONAL_HEADER64 *)&PeHdr->Pe32.OptionalHeader;
++    PartialSum = ChkSum(0, (UINT16*) FileBuffer, (FileLength + 1) >> 1);
++
++    AdjustSum = (UINT16*) &Optional64->CheckSum;
++    PartialSum -= (PartialSum < AdjustSum[0]);
++    PartialSum -= AdjustSum[0];
++    PartialSum -= (PartialSum < AdjustSum[1]);
++    PartialSum -= AdjustSum[1];
++
++    Optional64->CheckSum = (UINT32) PartialSum + FileLength;
++  }
++
+ WriteFile:
+   //
+   // Update Image to EfiImage or TE image
+diff --git a/BaseTools/Source/C/Include/IndustryStandard/PeImage.h b/BaseTools/Source/C/Include/IndustryStandard/PeImage.h
+index f17b8ee19b..0b025a549a 100644
+--- a/BaseTools/Source/C/Include/IndustryStandard/PeImage.h
++++ b/BaseTools/Source/C/Include/IndustryStandard/PeImage.h
+@@ -23,6 +23,8 @@
+ #define EFI_IMAGE_SUBSYSTEM_EFI_RUNTIME_DRIVER      12
+ #define EFI_IMAGE_SUBSYSTEM_SAL_RUNTIME_DRIVER      13
+ 
++#define EFI_IMAGE_SUBSYSTEM_WINDOWS_BOOT_APPLICATION 16
++
+ //
+ // BugBug: Need to get a real answer for this problem. This is not in the
+ //         PE specification.
+@@ -33,12 +35,14 @@
+ //
+ #define EFI_IMAGE_SUBSYSTEM_SAL_RUNTIME_DRIVER  13
+ 
++
+ //
+ // PE32+ Machine type for EFI images
+ //
+ #define IMAGE_FILE_MACHINE_I386     0x014c
+ #define IMAGE_FILE_MACHINE_EBC      0x0EBC
+ #define IMAGE_FILE_MACHINE_X64      0x8664
++#define IMAGE_FILE_MACHINE_ARMNT    0x01c4  // 32-bit ARMv7-based Thumb2
+ #define IMAGE_FILE_MACHINE_ARM      0x01c0  // Thumb only
+ #define IMAGE_FILE_MACHINE_ARMT     0x01c2  // 32bit Mixed ARM and Thumb/Thumb 2  Little Endian
+ #define IMAGE_FILE_MACHINE_ARM64    0xAA64  // 64bit ARM Architecture, Little Endian
+@@ -50,6 +54,7 @@
+ #define EFI_IMAGE_MACHINE_IA32      IMAGE_FILE_MACHINE_I386
+ #define EFI_IMAGE_MACHINE_EBC       IMAGE_FILE_MACHINE_EBC
+ #define EFI_IMAGE_MACHINE_X64       IMAGE_FILE_MACHINE_X64
++#define EFI_IMAGE_MACHINE_ARMNT     IMAGE_FILE_MACHINE_ARMNT
+ #define EFI_IMAGE_MACHINE_ARMT      IMAGE_FILE_MACHINE_ARMT
+ #define EFI_IMAGE_MACHINE_AARCH64   IMAGE_FILE_MACHINE_ARM64
+ #define EFI_IMAGE_MACHINE_RISCV64   IMAGE_FILE_MACHINE_RISCV64
+-- 
+2.17.1
+

@@ -1,0 +1,58 @@
+# Yahallo.inf: main application for Tegra Secure Boot unlocking
+# Copyright (c) 2019 - 2020, Bingxing Wang and other project authors. All rights reserved.<BR>
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = Yahallo
+  FILE_GUID                      = e59e2095-d00d-4fc1-85f3-5c0fc38b7d54
+  # Note: this is not a real "UEFI Application", it uses a different
+  # entry point. Let's see how it goes...
+  MODULE_TYPE                    = UEFI_APPLICATION
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = TegraSecureBootUnlockEntryPoint
+
+[Sources]
+  App.c
+  Cache.c
+  Console.c
+  Exploit.c
+  MemUtility.c
+  DeviceLut.c
+  Smc.c
+
+  Include/Application.h
+
+[Packages]
+  ArmPkg/ArmPkg.dec
+  ArmPlatformPkg/ArmPlatformPkg.dec
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  YahalloPkg/YahalloPkg.dec
+
+[LibraryClasses]
+  WindowsBootApplicationEntryPoint
+  ArmLib
+  ArmSmcLib
+  DevicePathLib
+  BaseLib
+  MemoryAllocationLib
+  UefiLib
+  UefiBootServicesTableLib
+  UefiRuntimeServicesTableLib
+  BaseMemoryLib
+  DebugLib
+  PrintLib
+
+[BuildOptions.ARM]
+   # Well, eventually this should be removed
+   GCC:*_*_*_CC_FLAGS = -Wno-pointer-to-int-cast -Wno-int-to-pointer-cast -Wno-missing-braces
+   # Instruct BaseTools to generate Windows Boor Application
+   *_*_*_GENFW_FLAGS = --windows-boot-application --convert-output-machine-arm-to-thumb2
+
+[Guids]
+  gEfiGlobalVariableGuid                        ## CONSUMES
+  gEfiSmbiosTableGuid                           ## CONSUMES
+
+[Protocols]
+  gEfiSimpleTextOutProtocolGuid                 ## CONSUMES
+  gEfiDevicePathProtocolGuid                    ## CONSUMES

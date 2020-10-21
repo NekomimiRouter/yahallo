@@ -1,0 +1,45 @@
+## @file
+# Module entry point library for Windows Boot Application.
+#
+# Copyright (c) 2007 - 2018, Intel Corporation. All rights reserved.<BR>
+# Copyright (c) 1996 - 2020, The ReactOS Project. All rights reserved.<BR>
+# Copyright (c) 2019 - 2020, Bingxing Wang and other project authors. All rights reserved.<BR>
+#
+#  SPDX-License-Identifier: GPL-2.0-only
+#
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = WindowsBootApplicationEntryPoint
+  MODULE_UNI_FILE                = WindowsBootApplicationEntryPoint.uni
+  FILE_GUID                      = DADE8301-CB29-4fd5-8148-56FD246C5B88
+  MODULE_TYPE                    = UEFI_APPLICATION
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = WindowsBootApplicationEntryPoint|UEFI_APPLICATION
+
+#
+#  VALID_ARCHITECTURES           = ARM
+#
+
+[Sources]
+  ApplicationEntryPoint.c
+
+[Sources.ARM]
+  Arm/ArmV7Lib.h
+  Arm/ArmV7Support.S            | GCC
+  Arm/ArmV7Support.asm          | RVCT
+
+[Packages]
+  MdePkg/MdePkg.dec
+  YahalloPkg/YahalloPkg.dec
+  ArmPkg/ArmPkg.dec
+  ArmPlatformPkg/ArmPlatformPkg.dec
+
+[LibraryClasses]
+  UefiBootServicesTableLib
+  DebugLib
+  BaseLib
+  ArmLib
+  CacheMaintenanceLib
