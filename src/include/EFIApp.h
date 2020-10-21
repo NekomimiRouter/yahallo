@@ -38,4 +38,17 @@ static char *twoway_memmem(
 
 void *memmem(const void *haystack, size_t n, const void *needle, size_t m);
 
+// Console Utility
+VOID Tegra3ConsoleOutputFixup(VOID);
+
+// SMC Utility
+STATIC
+UINT32
+ArmCallSmcHelper(UINT32 R0, UINT32 R1, UINT32 R2, UINT32 R3);
+
+VOID PerformNvExploit(VOID);
+
+// Cache Utility
+VOID CortexA15CachePrime(VOID);
+
 #endif

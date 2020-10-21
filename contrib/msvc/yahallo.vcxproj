@@ -87,10 +87,12 @@ armasm -32 $(ProjectDir)..\..\src\ARM\ScanMem.asm $(IntermediateOutputPath)ScanM
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\Cache.c" />
+    <ClCompile Include="..\..\src\Console.c" />
     <ClCompile Include="..\..\src\MemUtility.c" />
     <ClCompile Include="..\..\src\BlApplicationEntry.c" />
     <ClCompile Include="..\..\src\Context.c" />
     <ClCompile Include="..\..\src\EFIApp.c" />
+    <ClCompile Include="..\..\src\Smc.c" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\..\src\ARM\ProcessorSupport.asm">
