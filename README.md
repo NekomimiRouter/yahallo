@@ -5,7 +5,7 @@ This tool exploits NVIDIA Tegra 3/Tegra 4 UEFI variable services and implements 
 In this way, users can permanently turn off Secure Boot on Tegra-based Windows RT devices without external devices' assistance (e.g. RCM Mode.)
 
 # About Project Naming
-"Yahallo" by Yui Yuigahama From [Oregairu](https://www.youtube.com/watch?v=jVOQr-zCWK8). _No objections will be acknowledged._
+"Yahallo" by Yui Yuigahama From [Oregairu](https://www.youtube.com/watch?v=Nhr5vrjHcIM). _No objections will be acknowledged._
 
 # Usage
 - Install Secure Boot Golden Key Exploit first. If the device installed WU updates after Nov 2016, install the BMR to reset Secure Boot Key Storage.
