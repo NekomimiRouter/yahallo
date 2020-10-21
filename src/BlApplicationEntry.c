@@ -2,6 +2,7 @@
 #include <efilib.h>
 
 #include "application.h"
+#include <ntstatus.h>
 
 // Boot Manager Application Entrypoint
 // Bootstraps environment and transfer control to EFI Application entry point.

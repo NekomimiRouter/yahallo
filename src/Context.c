@@ -1,3 +1,7 @@
+#include <efi.h>
+#include <efilib.h>
+
+#include "ProcessorSupport.h"
 #include "application.h"
 
 // Switch to "real" mode and never look back.

@@ -39,6 +39,7 @@
     <PostBuildEventUseInBuild>true</PostBuildEventUseInBuild>
     <CustomBuildBeforeTargets>Link</CustomBuildBeforeTargets>
     <CustomBuildAfterTargets>ClCompile</CustomBuildAfterTargets>
+    <TargetName>Yahallo</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <ClCompile>
@@ -88,10 +89,12 @@ armasm -32 $(ProjectDir)..\..\src\ARM\ScanMem.asm $(IntermediateOutputPath)ScanM
   <ItemGroup>
     <ClCompile Include="..\..\src\Cache.c" />
     <ClCompile Include="..\..\src\Console.c" />
+    <ClCompile Include="..\..\src\Exploit.c" />
     <ClCompile Include="..\..\src\MemUtility.c" />
     <ClCompile Include="..\..\src\BlApplicationEntry.c" />
     <ClCompile Include="..\..\src\Context.c" />
     <ClCompile Include="..\..\src\EFIApp.c" />
+    <ClCompile Include="..\..\src\Smbios.c" />
     <ClCompile Include="..\..\src\Smc.c" />
   </ItemGroup>
   <ItemGroup>
@@ -101,6 +104,16 @@ armasm -32 $(ProjectDir)..\..\src\ARM\ScanMem.asm $(IntermediateOutputPath)ScanM
     <Text Include="..\..\src\ARM\ScanMem.asm">
       <FileType>Document</FileType>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\include\application.h" />
+    <ClInclude Include="..\..\src\include\bl.h" />
+    <ClInclude Include="..\..\src\include\context.h" />
+    <ClInclude Include="..\..\src\include\EFIApp.h" />
+    <ClInclude Include="..\..\src\include\mem.h" />
+    <ClInclude Include="..\..\src\include\ProcessorSupport.h" />
+    <ClInclude Include="..\..\src\include\suptypes.h" />
+    <ClInclude Include="..\..\src\include\VersionTable.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
