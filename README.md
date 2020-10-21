@@ -11,5 +11,8 @@ In this way, users can permanently turn off Secure Boot on Tegra-based Windows R
 - Install Secure Boot Golden Key Exploit first. If the device installed WU updates after Nov 2016, install the BMR to reset Secure Boot Key Storage.
 - Run this tool as Windows Boot Manager Boot Application.
 
+# Known Issue
+Certain TLB/Cache maintaiance functions ported from EDK2 might not work under MSVC yet.
+
 # License
 GPLv2
