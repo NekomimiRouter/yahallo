@@ -1,0 +1,35 @@
+From 98cd866d46a937cc1e348d573d563cfa5a7a5837 Mon Sep 17 00:00:00 2001
+From: Bingxing Wang <i@imbushuo.net>
+Date: Sun, 25 Oct 2020 19:44:50 -0400
+Subject: [PATCH] BaseTools: use hard float for Clang/LLVM ARM build
+
+Signed-off-by: Bingxing Wang <i@imbushuo.net>
+---
+ BaseTools/Conf/tools_def.template | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/BaseTools/Conf/tools_def.template b/BaseTools/Conf/tools_def.template
+index 933b3160fd..dfdd73a913 100755
+--- a/BaseTools/Conf/tools_def.template
++++ b/BaseTools/Conf/tools_def.template
+@@ -2544,7 +2544,7 @@ RELEASE_GCC5_AARCH64_DLINK_XIPFLAGS = -z common-page-size=0x20
+ *_CLANG35_*_ASLDLINK_PATH        = ENV(CLANG35_BIN)clang
+ *_CLANG35_*_DEPS_FLAGS           = DEF(GCC_DEPS_FLAGS)
+ 
+-DEFINE CLANG35_ARM_TARGET        = -target arm-linux-gnueabi
++DEFINE CLANG35_ARM_TARGET        = -target arm-linux-gnueabihf
+ DEFINE CLANG35_AARCH64_TARGET    = -target aarch64-linux-gnu
+ 
+ DEFINE CLANG35_WARNING_OVERRIDES = -Wno-parentheses-equality -Wno-tautological-compare -Wno-tautological-constant-out-of-range-compare -Wno-empty-body -Wno-unknown-warning-option
+@@ -2697,7 +2697,7 @@ NOOPT_CLANG38_X64_DLINK2_FLAGS     = DEF(GCC5_X64_DLINK2_FLAGS) -O0
+ ##################
+ # CLANG38 ARM definitions
+ ##################
+-DEFINE CLANG38_ARM_TARGET        = -target arm-linux-gnueabi
++DEFINE CLANG38_ARM_TARGET        = -target arm-linux-gnueabihf
+ DEFINE CLANG38_ARM_CC_FLAGS      = DEF(GCC_ARM_CC_FLAGS) DEF(CLANG38_ARM_TARGET) DEF(CLANG38_WARNING_OVERRIDES) -mno-movt
+ DEFINE CLANG38_ARM_DLINK_FLAGS   = DEF(CLANG38_ARM_TARGET) DEF(GCC_ARM_DLINK_FLAGS)
+ 
+-- 
+2.17.1
+

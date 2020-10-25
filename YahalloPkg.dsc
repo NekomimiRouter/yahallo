@@ -24,6 +24,8 @@
 [BuildOptions.common]
   GCC:*_*_ARM_CC_FLAGS = -O0
   GCC:*_*_ARM_DLINK_FLAGS = -O0
+  CLANG:*_*_ARM_CC_FLAGS = -O0
+  CLANG:*_*_ARM_DLINK_FLAGS = -O0
 
 #
 #  Debug output control
