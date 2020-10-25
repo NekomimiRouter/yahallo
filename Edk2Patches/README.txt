@@ -6,5 +6,5 @@ The second one uses hard float for Clang ARM builds. Tested on Clang 11.
 To apply this:
 
     git apply YahalloPkg/Edk2Patches/0001-BaseTools-support-generation-of-Windows-Boot-Applica.patch
-    git apply 0002-BaseTools-use-hard-float-for-Clang-LLVM-ARM-build.patch
+    git apply YahalloPkg/Edk2Patches/0002-BaseTools-use-hard-float-for-Clang-LLVM-ARM-build.patch
     make -C BaseTools
