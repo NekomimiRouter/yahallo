@@ -71,8 +71,8 @@ index 8cab70ba4d..28b4c48f8c 100644
  }
  
 +UINT16 ChkSum(
-+  UINT32 PartialSum, 
-+  UINT16* Source, 
++  UINT32 PartialSum,
++  UINT16* Source,
 +  UINT32 Length
 +  )
 +/*++
@@ -88,7 +88,7 @@ index 8cab70ba4d..28b4c48f8c 100644
 +
 +  PartialSum      Supplies the initial checksum value.
 +  Sources         Supplies a pointer to the array of words for which the
-+  checksum is computed. 
++  checksum is computed.
 +  Length          Supplies the length of the array in words.
 +
 +Returns:
