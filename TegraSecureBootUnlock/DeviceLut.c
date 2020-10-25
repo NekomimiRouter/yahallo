@@ -26,7 +26,7 @@ VERSION_TABLE_ENTRY gVersionEntries[255] = {
 
 EFI_STATUS LaunchExploitByVersionTable(VOID)
 {
-  EFI_STATUS           Status;
+  EFI_STATUS           Status = EFI_SUCCESS;
   PVERSION_TABLE_ENTRY pEntry = NULL;
 
   if (gST->FirmwareVendor != NULL) {
