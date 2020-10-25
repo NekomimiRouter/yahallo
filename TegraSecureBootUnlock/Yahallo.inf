@@ -46,7 +46,7 @@
 [BuildOptions.ARM]
    # Well, eventually this should be removed
    GCC:*_*_*_CC_FLAGS = -Wno-pointer-to-int-cast -Wno-int-to-pointer-cast -Wno-missing-braces
-   # Instruct BaseTools to generate Windows Boor Application
+   # Instruct BaseTools to generate Windows Boot Application
    *_*_*_GENFW_FLAGS = --windows-boot-application --convert-output-machine-arm-to-thumb2
 
 [Guids]
