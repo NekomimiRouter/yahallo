@@ -55,3 +55,5 @@ void *memmem(const void *h0, size_t k, const void *n0, size_t l);
 #define BITOP(a, b, op)                                                        \
   ((a)[(size_t)(b) / (8 * sizeof *(a))] op(size_t) 1                           \
    << ((size_t)(b) % (8 * sizeof *(a))))
+
+extern EFI_GUID gEfiGlobalVariableGuid;
