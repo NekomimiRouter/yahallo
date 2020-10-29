@@ -54,7 +54,7 @@
   #
   BaseLib|MdePkg/Library/BaseLib/BaseLib.inf
   # This needs to be faster
-  BaseMemoryLib|MdePkg/Library/BaseMemoryLibOptDxe/BaseMemoryLibOptDxe.inf
+  BaseMemoryLib|MdePkg/Library/BaseMemoryLib/BaseMemoryLib.inf
   UefiLib|MdePkg/Library/UefiLib/UefiLib.inf
   PrintLib|MdePkg/Library/BasePrintLib/BasePrintLib.inf
   PcdLib|MdePkg/Library/BasePcdLibNull/BasePcdLibNull.inf
@@ -96,3 +96,4 @@
 [Components]
   YahalloPkg/TegraSecureBootUnlock/Yahallo.inf
   YahalloPkg/TegraFirmwareDump/FwDump.inf
+  YahalloPkg/TegraUBootChainloader/TegraUBootChainloader.inf

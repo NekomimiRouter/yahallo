@@ -1,0 +1,51 @@
+# TegraUBootChainloader.inf: main application for U-Boot chainloader
+# Copyright (c) 2019 - 2020, Bingxing Wang and other project authors. All rights reserved.<BR>
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = TegraUBootChainloader
+  FILE_GUID                      = 914be945-33ad-4ea5-996e-d399ddead2cc
+  MODULE_TYPE                    = UEFI_APPLICATION
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = ChainloaderEntryPoint
+
+[Sources]
+  App.c
+  Cache.c
+  Console.c
+  Smc.c
+  MemUtility.c
+  Include/Application.h
+
+[Packages]
+  ArmPkg/ArmPkg.dec
+  ArmPlatformPkg/ArmPlatformPkg.dec
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  YahalloPkg/YahalloPkg.dec
+
+[LibraryClasses]
+  UefiApplicationEntryPoint
+  ArmLib
+  ArmSmcLib
+  DevicePathLib
+  BaseLib
+  MemoryAllocationLib
+  UefiLib
+  UefiBootServicesTableLib
+  UefiRuntimeServicesTableLib
+  BaseMemoryLib
+  DebugLib
+  PrintLib
+  CacheMaintenanceLib
+
+[Guids]
+  gEfiGlobalVariableGuid                        ## CONSUMES
+  gEfiFileInfoGuid                              ## CONSUMES
+
+[Protocols]
+  gEfiSimpleTextOutProtocolGuid                 ## CONSUMES
+  gEfiDevicePathProtocolGuid                    ## CONSUMES
+  gEfiGraphicsOutputProtocolGuid                ## CONSUMES
+  gEfiSimpleFileSystemProtocolGuid              ## CONSUMES
+  gEfiDevicePathProtocolGuid                    ## CONSUMES
