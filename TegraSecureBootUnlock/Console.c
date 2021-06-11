@@ -1,5 +1,6 @@
 // ConsoleUtility.c: workaround for Tegra 3 firmware
 #include "Include/Application.h"
+#include "Include/Devices.h"
 
 VOID Tegra3ConsoleOutputFixup(VOID)
 {

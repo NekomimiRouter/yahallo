@@ -29,13 +29,19 @@ typedef struct _VERSION_TABLE_ENTRY {
 
 typedef void (*HACK_ENTRY)(void);
 
+// Routines
+VOID DumpTegraFirmware(VOID);
+VOID FinalizeApp(VOID);
+
 VOID PerformNvTegra3Exploit(VOID);
 VOID PerformNvTegra4Exploit(VOID);
 
-UINT32     ArmCallSmcHelper(UINT32 R0, UINT32 R1, UINT32 R2, UINT32 R3);
-VOID       FinalizeApp(VOID);
-VOID       Tegra3ConsoleOutputFixup(VOID);
-VOID       CortexA15CachePrime(VOID);
+UINT32
+ArmCallSmcHelper(UINT32 R0, UINT32 R1, UINT32 R2, UINT32 R3);
+
+VOID Tegra3ConsoleOutputFixup(VOID);
+VOID CortexA15CachePrime(VOID);
+
 EFI_STATUS LaunchExploitByVersionTable(VOID);
 
 void *memmem(const void *h0, size_t k, const void *n0, size_t l);
@@ -48,5 +54,3 @@ void *memmem(const void *h0, size_t k, const void *n0, size_t l);
 #define BITOP(a, b, op)                                                        \
   ((a)[(size_t)(b) / (8 * sizeof *(a))] op(size_t) 1                           \
    << ((size_t)(b) % (8 * sizeof *(a))))
-
-extern EFI_GUID gEfiGlobalVariableGuid;
