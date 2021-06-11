@@ -95,4 +95,4 @@
 
 [Components]
   YahalloPkg/TegraSecureBootUnlock/Yahallo.inf
-
+  YahalloPkg/TegraFirmwareDump/FwDump.inf
