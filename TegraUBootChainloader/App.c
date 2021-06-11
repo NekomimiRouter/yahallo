@@ -104,7 +104,7 @@ ChainloaderEntryPoint(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
     EFI_FILE_PROTOCOL *              EfiFileProtocol   = NULL;
     EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *EfiSfsProtocol    = NULL;
 
-    EFI_FILE_INFO *PayloadFileInformation;
+    EFI_FILE_INFO *PayloadFileInformation     = NULL;
     UINTN          PayloadFileInformationSize = 0;
 
     Status = gBS->HandleProtocol(

@@ -15,7 +15,7 @@ VERSION_TABLE_ENTRY gVersionEntries[255] = {
     {
         // Surface 2 v2.6.500, Tegra 4
         // gST string "Surface 2 EFI Aug 26 2013 19:20:25"
-        L"Surface 2 EFI Aug 26 2013 19:20:25",
+        L"Covington EFI Aug 26 2013 19:20:25",
         Surface2_Fw_2_06_500_Exploit,
         NULL,
     },
