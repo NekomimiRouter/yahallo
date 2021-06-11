@@ -1,6 +1,7 @@
 // DeviceLut.c: Device Look-up table
 
 #include "Include/Application.h"
+#include "Include/Devices.h"
 
 // Hack version LUT
 VERSION_TABLE_ENTRY gVersionEntries[255] = {
@@ -12,10 +13,17 @@ VERSION_TABLE_ENTRY gVersionEntries[255] = {
         Tegra3ConsoleOutputFixup,
     },
     {
+        // Surface 2 v2.6.500, Tegra 4
+        // gST string "Surface 2 EFI Aug 26 2013 19:20:25"
+        L"Surface 2 EFI Aug 26 2013 19:20:25",
+        Surface2_Fw_2_06_500_Exploit,
+        NULL,
+    },
+    {
         // Surface 2 v4.22.500, Tegra 4
         // gST string "Surface 2 EFI Sep 11 2014 00:32:29"
         L"Surface 2 EFI Sep 11 2014 00:32:29",
-        Surface2Exploit,
+        Surface2_Fw_4_22_500_Exploit,
         NULL,
     },
     {
